@@ -4,8 +4,8 @@ Red Herring is a browser mystery game where a generative AI model writes the who
 
 Every playthrough is a different case, and the suspects answer whatever you actually type, so no two games go the same way.
 
-**Play it live:** https://red-herring-six.vercel.app
-**Source code:** https://github.com/InnoxCodes/red-herring
+- **Play it live:** https://red-herring-six.vercel.app
+- **Source code:** https://github.com/InnoxCodes/red-herring
 
 ## Concept
 
