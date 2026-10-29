@@ -314,10 +314,10 @@ def test_http_errors_are_json(client):
 @pytest.mark.parametrize(
     "raw, clean",
     [
-        ("keep it safe—I saw her", "keep it safe, I saw her"),
-        ("from 10–11 pm", "from 10-11 pm"),
-        ("and then—.", "and then."),
-        ("—Wait", "Wait"),
+        ("keep it safe\u2014I saw her", "keep it safe, I saw her"),
+        ("from 10\u201311 pm", "from 10-11 pm"),
+        ("and then\u2014.", "and then."),
+        ("\u2014Wait", "Wait"),
         ("no dashes here", "no dashes here"),
     ],
 )
@@ -333,7 +333,7 @@ def test_chat_strips_dashes_from_model_json(monkeypatch):
     )
     out = ai.chat([], json_mode=True)
     assert out == {"reply": "I was there, briefly", "clues": ["a, b"]}
-    assert "—" not in str(out) and "–" not in str(out)
+    assert "\u2014" not in str(out) and "\u2013" not in str(out)
 
 
 # ------------------------------------------------------------ serverless: game lives in an encrypted token
