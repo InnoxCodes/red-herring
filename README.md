@@ -4,6 +4,9 @@ Red Herring is a browser mystery game where a generative AI model writes the who
 
 Every playthrough is a different case, and the suspects answer whatever you actually type, so no two games go the same way.
 
+**Play it live:** https://red-herring-six.vercel.app
+**Source code:** https://github.com/InnoxCodes/red-herring
+
 ## Concept
 
 - **Genre:** mystery / detective game (one of the suggested concepts)
@@ -82,6 +85,12 @@ AI / API errors:
 - If the AI fails mid-game, that single reply, hint or ending falls back to a scripted version built from the case data (marked "scripted reply" in the chat) and the game carries on.
 - On the frontend every request has a timeout. If the server is down you get "Can't reach the game server" instead of a frozen page, and a failed question is put back in the input box so you can retry it.
 
+## Deployment
+
+The live version runs on Vercel as a Python serverless function. Serverless instances don't share memory, so the game can't keep cases in RAM between requests. After every action the server encrypts the whole game state (including the hidden culprit and secrets) with Fernet and sends it to the browser, which sends it back with the next request. The browser can't read or edit it, and any server instance can pick the game up. Refreshing the page resumes your case.
+
+The Groq key is stored as an encrypted Vercel environment variable and never reaches the browser. To deploy your own copy, import the repo into Vercel and add `GROQ_API_KEY` (and optionally `GROQ_MODEL`) in the project's environment variables.
+
 ## Project structure
 
 ```
@@ -95,7 +104,7 @@ red-herring/
     style.css
     game.js         UI logic and API calls
   tests/
-    test_game.py    33 tests covering rules, validation, fallbacks and the API
+    test_game.py    38 tests covering rules, validation, fallbacks and the API
   requirements.txt
   .env.example
 ```
