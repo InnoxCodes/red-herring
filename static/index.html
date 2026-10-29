@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Red Herring - AI Detective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- start screen -->
+  <section id="screen-start" class="screen active">
+    <div class="start-card">
+      <p class="eyebrow">An AI detective game</p>
+      <h1 class="logo">Red Herring</h1>
+      <p class="tagline">Every case is written by AI on the spot. Question the suspects, search the scene, and name the culprit before you run out of time.</p>
+      <p id="ai-status" class="status-pill">Checking AI…</p>
+
+      <form id="start-form" class="start-form">
+        <label for="theme-select">Setting</label>
+        <select id="theme-select">
+          <option value="a 1930s country manor during a storm">1930s country manor</option>
+          <option value="a research station on Mars">Research station on Mars</option>
+          <option value="a 1920s jazz club in Chicago">1920s jazz club</option>
+          <option value="a tech startup the night before launch">Tech startup launch night</option>
+          <option value="a luxury overnight train crossing the Alps">Overnight train in the Alps</option>
+          <option value="custom">Write my own…</option>
+        </select>
+        <input id="theme-custom" type="text" maxlength="60" placeholder="e.g. a pirate ship, a school science fair" hidden>
+
+        <span class="label">Difficulty</span>
+        <div class="difficulty" role="radiogroup">
+          <label><input type="radio" name="difficulty" value="easy"><span>Easy<small>18 actions</small></span></label>
+          <label><input type="radio" name="difficulty" value="normal" checked><span>Normal<small>14 actions</small></span></label>
+          <label><input type="radio" name="difficulty" value="hard"><span>Hard<small>10 actions</small></span></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-big">Open a new case</button>
+      </form>
+
+      <details class="how">
+        <summary>How to play</summary>
+        <ul>
+          <li>Questioning a suspect or searching a location costs 1 action. A hint from your partner costs 2.</li>
+          <li>Suspects answer in character. The guilty one lies, so check their story against the evidence.</li>
+          <li>Accuse someone whenever you're ready. You have to once your actions run out.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- loading -->
+  <section id="screen-loading" class="screen">
+    <div class="loading">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loading-text">Writing your case…</p>
+    </div>
+  </section>
+
+  <!-- main game -->
+  <section id="screen-game" class="screen">
+    <header class="topbar">
+      <div class="topbar-title">
+        <span id="source-badge" class="badge"></span>
+        <h2 id="case-title"></h2>
+      </div>
+      <div class="topbar-actions">
+        <div class="meter" title="Actions left">
+          <span class="meter-label">Actions</span>
+          <span id="actions-left" class="meter-value">0</span>
+        </div>
+        <button id="btn-hint" class="btn">Hint <small>-2</small></button>
+        <button id="btn-accuse" class="btn btn-danger">Accuse</button>
+      </div>
+    </header>
+
+    <div class="board">
+      <aside class="panel panel-brief">
+        <details id="brief" class="brief" open>
+          <summary>Case briefing</summary>
+          <p id="case-intro" class="intro"></p>
+          <dl>
+            <dt>Setting</dt><dd id="case-setting"></dd>
+            <dt>Victim</dt><dd id="case-victim"></dd>
+            <dt>What happened</dt><dd id="case-crime"></dd>
+          </dl>
+        </details>
+        <h3 class="panel-heading">Suspects</h3>
+        <ul id="suspect-list" class="suspect-list"></ul>
+      </aside>
+
+      <main class="panel panel-chat">
+        <div id="chat-empty" class="chat-empty">
+          <p>Pick a suspect to start the interrogation.</p>
+        </div>
+        <div id="chat" class="chat" hidden>
+          <div class="chat-head">
+            <div class="avatar" id="chat-avatar"></div>
+            <div>
+              <h3 id="chat-name"></h3>
+              <p id="chat-role" class="muted"></p>
+            </div>
+            <span id="chat-mood" class="mood"></span>
+          </div>
+          <div id="chat-log" class="chat-log" aria-live="polite"></div>
+          <div id="chips" class="chips"></div>
+          <form id="ask-form" class="ask-form">
+            <input id="ask-input" type="text" maxlength="300" autocomplete="off" placeholder="Ask a question…">
+            <button type="submit" class="btn btn-primary">Ask <small>-1</small></button>
+          </form>
+          <p id="ask-count" class="char-count">0 / 300</p>
+        </div>
+      </main>
+
+      <aside class="panel panel-evidence">
+        <h3 class="panel-heading">Search the scene</h3>
+        <ul id="location-list" class="location-list"></ul>
+        <h3 class="panel-heading">Evidence <span id="clue-count" class="muted"></span></h3>
+        <ul id="clue-list" class="clue-list"></ul>
+        <p id="clue-empty" class="muted small">Nothing yet. Search a location.</p>
+        <div id="hint-box" class="hint-box" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ending -->
+  <section id="screen-end" class="screen">
+    <div class="end-card">
+      <div id="end-stamp" class="stamp"></div>
+      <h2 id="end-title"></h2>
+      <p id="end-scene" class="end-scene"></p>
+      <p id="end-feedback" class="end-feedback"></p>
+      <div class="stats">
+        <div><span id="end-score"></span><small>Score</small></div>
+        <div><span id="end-clues"></span><small>Clues found</small></div>
+        <div><span id="end-culprit"></span><small>Real culprit</small></div>
+      </div>
+      <details class="solution">
+        <summary>How it really happened</summary>
+        <p id="end-solution"></p>
+      </details>
+      <button id="btn-again" class="btn btn-primary btn-big">Take another case</button>
+    </div>
+  </section>
+
+  <!-- accuse dialog -->
+  <dialog id="accuse-dialog" class="dialog">
+    <form id="accuse-form" method="dialog">
+      <h3>Make your accusation</h3>
+      <p class="muted small">This ends the case. There's no taking it back.</p>
+      <div id="accuse-options" class="accuse-options"></div>
+      <label for="accuse-reason">Your reasoning <span class="muted">(optional, the AI will judge it)</span></label>
+      <textarea id="accuse-reason" rows="3" maxlength="600" placeholder="The shoe print in the shed breaks their alibi because…"></textarea>
+      <p id="accuse-error" class="form-error" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" id="accuse-cancel" class="btn">Not yet</button>
+        <button type="submit" id="accuse-submit" class="btn btn-danger">Accuse</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
+
+  <script src="/static/game.js"></script>
+</body>
+</html>
